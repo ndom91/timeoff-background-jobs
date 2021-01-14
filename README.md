@@ -22,13 +22,20 @@ git clone https://github.com/ndom91/nt-vacation-yearly-fn
 cd nt-vacation-yearly-fn && npm install
 ```
 
-3. Run it in 'dry-run' mode
+3. Create your own copy of `.env` and enter the appropriate mysql database details
+
+```
+cp .env.example .env
+vim .env
+```
+
+4. Run it in 'dry-run' mode
 
 ```
 npm start
 ```
 
-Alternatively, if you're happy with the output and want to write to the DB, you can run
+If you're happy with the output and want to write to the DB, you can run
 
 ```
 npm run start:write
