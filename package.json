@@ -6,7 +6,8 @@
 	"type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run": "node index.js"
+    "start": "node index.js",
+    "start:write": "node index.js write"
   },
   "keywords": ["mysql", "node", "newtelco"],
   "author": "ndom91 <yo@ndo.dev>",
