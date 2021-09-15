@@ -5,8 +5,6 @@ dotenv.config()
 
 import serverlessMysql from "serverless-mysql"
 
-const write = process.argv[2] === 'write'
-
 const mysql = serverlessMysql({
   config: {
     host     : process.env.MYSQL_HOST,
@@ -17,11 +15,11 @@ const mysql = serverlessMysql({
   }
 })
 
+const write = process.argv[2] === 'write'
+
 const getJoinDates = async () => {
   const query = 'SELECT email, dateJoined FROM users WHERE dateJoined IS NOT NULL'
-  let result = await mysql.query(query)
-
-  return result
+  return mysql.query(query)
 }
 
 const writeDays = async (days, email) => {
@@ -38,10 +36,6 @@ const writeDays = async (days, email) => {
       resturlaubJAHR: daysLeft
     } = result[0]
 
-    console.log('')
-    console.log(email)
-    console.log(daysLastYear, daysEarned, daysSpent, daysAvailable, daysRequested, daysLeft)
-
     daysLastYear = daysLeft
     daysEarned = days
     daysSpent = 0
@@ -49,10 +43,7 @@ const writeDays = async (days, email) => {
     daysRequested = 0
     daysLeft = daysAvailable
 
-    console.log(daysLastYear, daysEarned, daysSpent, daysAvailable, daysRequested, daysLeft)
-
-    // DEBUG
-    console.log(`HAD ${daysLastYear} + EARNED ${daysEarned} = HAS ${daysAvailable} days`)
+    console.debug(daysLastYear, daysEarned, daysSpent, daysAvailable, daysRequested, daysLeft)
 
     if (write) {
       const writeQuery = `INSERT INTO vacations (name, email, resturlaubVorjahr, jahresurlaubInsgesamt, jahresUrlaubAusgegeben, restjahresurlaubInsgesamt, beantragt, resturlaubJAHR, type, note, submitted_datetime, submitted_by, approved, approval_datetime, disabled) VALUES ('${result[0].name}', '${email}', ${daysLastYear}, ${daysEarned}, ${daysSpent}, ${daysAvailable}, ${daysRequested}, ${daysLeft}, 'vacation', 'System Update for 2021', '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 'ndomino', 2, '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 0);`
@@ -82,18 +73,20 @@ const getDaysEarned = years => {
 
 const joinDates = await getJoinDates()
 
-joinDates.map(async user => {
-  const dateJoined = new Date(user.dateJoined)
-  const dateNow = new Date()
+try {
+  await Promise.all(joinDates.map(async user => {
+    const dateJoined = new Date(user.dateJoined)
+    const dateNow = new Date()
+    const yearsService = Math.floor((dateNow - dateJoined) / 31536000000)
+    const daysEarned = getDaysEarned(yearsService)
 
-  const yearsService = Math.floor((dateNow - dateJoined) / 31536000000)
-
-  const daysEarned = getDaysEarned(yearsService)
-
-  await writeDays(daysEarned, user.email)
-
-})
+    await writeDays(daysEarned, user.email)
+  }))
+} catch (e) {
+  console.error('Error writing to database!\n\n', e)
+  await mysql.end()
+  process.exit(1)
+}
 
 await mysql.end()
-
 process.exit(0)
