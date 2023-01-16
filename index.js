@@ -43,10 +43,10 @@ const writeDays = async (days, email) => {
     daysRequested = 0
     daysLeft = daysAvailable
 
-    console.debug(daysLastYear, daysEarned, daysSpent, daysAvailable, daysRequested, daysLeft)
+    console.log(write ? 'Updating' : 'Would update', email, 'daysLeft:',daysLastYear, 'daysEarned:',daysEarned, 'daysSpent:',daysSpent, 'daysAvailable:',daysAvailable, 'daysRequested:',daysRequested, 'daysLeft:',daysLeft)
 
     if (write) {
-      const writeQuery = `INSERT INTO vacations (name, email, resturlaubVorjahr, jahresurlaubInsgesamt, jahresUrlaubAusgegeben, restjahresurlaubInsgesamt, beantragt, resturlaubJAHR, type, note, submitted_datetime, submitted_by, approved, approval_datetime, disabled) VALUES ('${result[0].name}', '${email}', ${daysLastYear}, ${daysEarned}, ${daysSpent}, ${daysAvailable}, ${daysRequested}, ${daysLeft}, 'vacation', 'System Update for 2021', '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 'ndomino', 2, '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 0);`
+      const writeQuery = `INSERT INTO vacations (name, email, resturlaubVorjahr, jahresurlaubInsgesamt, jahresUrlaubAusgegeben, restjahresurlaubInsgesamt, beantragt, resturlaubJAHR, type, note, submitted_datetime, submitted_by, approved, approval_datetime, disabled) VALUES ('${result[0].name}', '${email}', ${daysLastYear}, ${daysEarned}, ${daysSpent}, ${daysAvailable}, ${daysRequested}, ${daysLeft}, 'vacation', 'System Update for 2023', '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 'ndomino', 2, '${new Date().toISOString().replace('T', ' ').split('Z')[0]}', 0);`
       const writeResult = await mysql.query(writeQuery)
       if (writeResult) {
         console.log('Write Success...')
